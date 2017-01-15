@@ -3,7 +3,7 @@
 # Copyright (C) 2011  Tiger Soldier
 #
 # This file is part of OSD Lyrics.
-# 
+#
 # OSD Lyrics is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -15,7 +15,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>. 
+# along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>.
 #/
 
 __all__ = (
@@ -24,7 +24,7 @@ __all__ = (
     'StringToken',
     'tokenize',
     'parse_lrc',
-    )
+)
 
 import re
 
@@ -34,10 +34,12 @@ LINE_PATTERN = re.compile(r'(\[[^\[]*?\])')
 TIMESTAMP_PATTERN = re.compile(r'^\[(\d+(:\d+){0,2}(\.\d+)?)\]$')
 ATTR_PATTERN = re.compile(r'^\[([\w\d]+):(.*)\]$')
 
+
 class AttrToken(object):
     """
     Represents tags with the form of ``[key:value]``
     """
+
     def __init__(self, key, value):
         self.key = key
         self.value = value
@@ -45,15 +47,18 @@ class AttrToken(object):
     def __repr__(self):
         return '{%s: %s}' % (self.key, self.value)
 
+
 class StringToken(object):
     """
     Represents a line of lyric text
     """
+
     def __init__(self, text):
         self.text = text
 
     def __repr__(self):
         return '"%s"\n' % self.text
+
 
 class TimeToken(object):
     """
@@ -61,6 +66,7 @@ class TimeToken(object):
 
     The time attribute is the timestamp in milliseconds
     """
+
     def __init__(self, string):
         parts = string.split(':')
         parts.reverse()
@@ -74,11 +80,12 @@ class TimeToken(object):
     def __repr__(self):
         return '[%s]' % self.time
 
+
 def tokenize(content):
     """ Split the content of LRC file into tokens
 
     Returns a list of tokens
-    
+
     Arguments:
     - `content`: UTF8 string, the content to be tokenized
     """
@@ -90,7 +97,7 @@ def tokenize(content):
         if m:
             return AttrToken(m.group(1), m.group(2))
         return None
-    
+
     def tokenize_line(line):
         pos = 0
         tokens = []
@@ -108,12 +115,13 @@ def tokenize(content):
                 break
         tokens.append(StringToken(line[pos:]))
         return tokens
-    
+
     lines = content.splitlines()
     tokens = []
     for line in lines:
         tokens.extend(tokenize_line(line))
     return tokens
+
 
 def parse_lrc(content):
     """
@@ -138,8 +146,8 @@ def parse_lrc(content):
             timetags.append(token.time)
         else:
             for timestamp in timetags:
-                lyrics.append({ 'timestamp': dbus.types.Int64(timestamp),
-                                'text': token.text })
+                lyrics.append({'timestamp': dbus.types.Int64(timestamp),
+                               'text': token.text})
             timetags = []
     lyrics.sort(key=lambda a: a['timestamp'])
     i = 0
@@ -147,11 +155,11 @@ def parse_lrc(content):
         lyric['id'] = dbus.types.UInt32(i)
         i = i + 1
     return attrs, lyrics
-            
+
 
 def test():
-    TEST_CASE1 = \
-"""[ti:焔の扉~hearty edition][ar:FictionJunction YUUKA]
+    TEST_CASE1 = """\
+[ti:焔の扉~hearty edition][ar:FictionJunction YUUKA]
 [al:焔の扉]
 [02:45.59]その日まで
 [52.78]
@@ -159,6 +167,7 @@ def test():
 [1:03:56.66][03:14.77]
 おわり
 """
+
     def test_tokenizer():
         tokens = tokenize(TEST_CASE1)
         print tokens

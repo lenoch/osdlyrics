@@ -23,7 +23,8 @@ import dbus.exceptions
 
 class AccessDeniedError(dbus.exceptions.DBusException):
     def __init__(self, *args):
-        dbus.exceptions.DBusException.__init__(self, dbus_error_name='org.osdlyrics.Error.AccessDenied', *args)
+        dbus.exceptions.DBusException.__init__(
+            self, dbus_error_name='org.osdlyrics.Error.AccessDenied', *args)
 
 
 class Property(object):
@@ -56,7 +57,8 @@ class Property(object):
         self.__name__ = name
         self._dbusset = dbus_set
         if not emit_change in [True, False, 'invalidates']:
-            raise ValueError('Value of emit_change must be one of True, False, or \'invalidates\'')
+            raise ValueError("Value of emit_change must be one of True, "
+                             "False, or 'invalidates'")
         self._emit_change = emit_change
         self._readable = readable
         self._writeable = writeable
@@ -111,7 +113,8 @@ class Property(object):
         elif self.writeable and callable(self._fset):
             self._set_value(obj, value, self._fset)
         else:
-            raise AccessDeniedError('Property %s is not writeable' % self.__name__)
+            raise AccessDeniedError(
+                'Property %s is not writeable' % self.__name__)
 
     def _set_value(self, obj, value, setter):
         changed = setter(obj, value)
@@ -199,7 +202,7 @@ DBUS_TYPE_MAP = {
     's': dbus.String,
     'o': dbus.ObjectPath,
     'g': dbus.Signature,
-    }
+}
 
 
 def wrap_dbus_type(signature, value):

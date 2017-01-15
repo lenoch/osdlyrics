@@ -36,7 +36,7 @@ __all__ = (
     'get_config_path',
     'http_download',
     'path2uri',
-    )
+)
 
 pycurl.global_init(pycurl.GLOBAL_DEFAULT)
 
@@ -44,6 +44,7 @@ pycurl.global_init(pycurl.GLOBAL_DEFAULT)
 if sys.getdefaultencoding() != 'utf-8':
     reload(sys)
     sys.setdefaultencoding('utf-8')
+
 
 class ProxySettings(object):
     """
@@ -57,6 +58,7 @@ class ProxySettings(object):
         self.port = port
         self.username = username
         self.password = password
+
 
 def get_config_path(filename='', expanduser=True):
     """
@@ -76,6 +78,7 @@ def get_config_path(filename='', expanduser=True):
     if expanduser:
         path = os.path.expanduser(path)
     return path
+
 
 def path2uri(path):
     r"""
@@ -152,9 +155,10 @@ def get_proxy_settings(config=None, conn=None):
         username = config.get_string('Download/proxy-username')
         passwd = config.get_string('Download/proxy-passwd')
         return ProxySettings(protocol=protocol, host=host, port=port,
-                            username=username, password=passwd)
+                             username=username, password=passwd)
     if proxy_type.lower() == 'system':
         return detect_system_proxy()
+
 
 def detect_system_proxy():
     r"""
@@ -177,6 +181,7 @@ def detect_system_proxy():
             return proxy
     return get_envar_proxy()
 
+
 def get_envar_proxy():
     r"""
     Return proxy settings from environment variable `http_proxy`
@@ -197,6 +202,7 @@ def get_envar_proxy():
                                  password=parts.password)
     return ProxySettings(protocol='no')
 
+
 def detect_desktop_shell():
     r"""
     Detect the currently running destop shell.
@@ -211,6 +217,7 @@ def detect_desktop_shell():
     if envar.startswith('ubuntu') or envar.startswith('unity'):
         return 'unity'
     return 'unknown'
+
 
 def get_gsettings_proxy():
     r"""
@@ -227,7 +234,7 @@ def get_gsettings_proxy():
     settings = Gio.Settings('org.gnome.system.proxy')
     if settings.get_string('mode') != 'manual':
         return ProxySettings(protocol='no')
-    protocol_map = { 'http': 'http', 'socks5': 'socks' }
+    protocol_map = {'http': 'http', 'socks5': 'socks'}
     for protocol, key in protocol_map.items():
         settings = Gio.Settings('org.gnome.system.proxy.' + key)
         host = settings.get_string('host').strip()
@@ -245,6 +252,7 @@ def get_gsettings_proxy():
                              username=username,
                              password=password)
     return ProxySettings(protocol='no')
+
 
 def get_kde_proxy():
     r"""
@@ -286,6 +294,7 @@ def get_kde_proxy():
                                          port=port)
     return ProxySettings('no')
 
+
 def http_download(url, port=0, method='GET', params={}, headers={}, timeout=15, proxy=None):
     r"""
     Helper function to download files from website
@@ -322,11 +331,12 @@ def http_download(url, port=0, method='GET', params={}, headers={}, timeout=15, 
     c.setopt(pycurl.WRITEFUNCTION, buf.write)
     if method == 'GET' and len(params) > 0:
         params = urllib.urlencode(params)
-        url = url + ('/' if '/' not in url else '') + ('?' if '?' not in url else '&') + params
+        url = url + ('/' if '/' not in url else '') + (
+            '?' if '?' not in url else '&') + params
     elif method == 'POST':
         c.setopt(pycurl.POST, 1)
         if len(params) > 0:
-            c.setopt(pycurl.POSTFIELDS, params) #Someone had forgot an 'S'
+            c.setopt(pycurl.POSTFIELDS, params)  # Someone had forgot an 'S'
             c.setopt(pycurl.POSTFIELDSIZE, len(params))
     url = ensure_utf8(url)
     c.setopt(pycurl.URL, url)
@@ -356,6 +366,7 @@ def http_download(url, port=0, method='GET', params={}, headers={}, timeout=15, 
     c.perform()
     return c.getinfo(pycurl.HTTP_CODE), buf.getvalue()
 
+
 def ensure_path(path, ignore_file_name=True):
     """ Create directories if necessary.
 
@@ -375,6 +386,7 @@ def ensure_path(path, ignore_file_name=True):
     if os.path.isdir(path):
         return
     os.makedirs(path)
+
 
 def find_file_in_dirs(filename, dirs, filter_func=None):
     """
@@ -396,6 +408,7 @@ def find_file_in_dirs(filename, dirs, filter_func=None):
             ret.append(path)
     return ret
 
+
 def cmd_exists(cmd):
     """
     Check if a command exists.
@@ -408,6 +421,7 @@ def cmd_exists(cmd):
                                  os.environ['PATH'].split(':'),
                                  is_exec_file)
     return len(cmdfiles) > 0
+
 
 def is_exec_file(filepath):
     """

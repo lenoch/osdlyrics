@@ -152,8 +152,9 @@ class Config(object):
     def _value_changed_cb(self, name_list):
         for name in name_list:
             if name in self._signals:
-               for handler in self._signals[name]:
-                   handler(name)
+                for handler in self._signals[name]:
+                    handler(name)
+
 
 def test():
     def value_changed(name):
@@ -167,12 +168,12 @@ def test():
     dbus_mainloop = DBusGMainLoop()
     conn = dbus.SessionBus(mainloop=dbus_mainloop)
     config = Config(conn)
-    testcase = { 'bool': False,
-                 'int': 123,
-                 'double': 123.54,
-                 'string': 'Foobar',
-                 'string_list': ['Foo', 'bar'],
-                 }
+    testcase = {'bool': False,
+                'int': 123,
+                'double': 123.54,
+                'string': 'Foobar',
+                'string_list': ['Foo', 'bar'],
+                }
     for k in testcase.keys():
         config.connect_change('test/' + k, value_changed)
     for k, v in testcase.items():

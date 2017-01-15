@@ -24,6 +24,7 @@ import urlparse
 
 from .errors import PatternException
 
+
 def expand_file(pattern, metadata):
     """
     Expands the pattern to a file name according to the infomation of a music
@@ -87,10 +88,12 @@ def expand_file(pattern, metadata):
                 elif tag == 'f':
                     location = metadata.location
                     if not location:
-                        raise PatternException('Location not found in metadata')
+                        raise PatternException(
+                            'Location not found in metadata')
                     uri = urlparse.urlparse(location)
                     if uri.scheme != '' and not uri.scheme in ['file']:
-                        raise PatternException('Unsupported file scheme %s' % uri.scheme)
+                        raise PatternException(
+                            'Unsupported file scheme %s' % uri.scheme)
                     if uri.scheme == '':
                         path = uri.path
                     else:
@@ -102,7 +105,8 @@ def expand_file(pattern, metadata):
                 elif tag in keys:
                     value = getattr(metadata, keys[tag])
                     if not value:
-                        raise PatternException('%s not in metadata' % keys[tag])
+                        raise PatternException(
+                            '%s not in metadata' % keys[tag])
                     has_tag = True
                     parts.append(value)
             if has_tag:
@@ -114,6 +118,7 @@ def expand_file(pattern, metadata):
             parts.append(pattern[start:])
             break
     return ''.join(parts)
+
 
 def expand_path(pattern, metadata):
     """

@@ -39,7 +39,6 @@ DOWNLOAD_CANCELLED = 1
 DOWNLOAD_FAILED = 2
 
 
-
 def onmainthread(func):
     def decfunc(self, app, *args, **kwargs):
         def timeout_cb():
@@ -52,6 +51,7 @@ def onmainthread(func):
 class SearchResult(object):
     """ Lyrics that match the metadata to be searched.
     """
+
     def __init__(self, sourceid, downloadinfo, title='', artist='', album='', comment=''):
         """
 
@@ -75,12 +75,12 @@ class SearchResult(object):
     def to_dict(self, ):
         """ Convert the result to a dict so that it can be sent with D-Bus.
         """
-        return { 'title': self._title,
-                 'artist': self._artist,
-                 'album': self._album,
-                 'comment': self._comment,
-                 'sourceid': self._sourceid,
-                 'downloadinfo': self._downloadinfo }
+        return {'title': self._title,
+                'artist': self._artist,
+                'album': self._album,
+                'comment': self._comment,
+                'sourceid': self._sourceid,
+                'downloadinfo': self._downloadinfo}
 
 
 class BaseTaskThread(threading.Thread):
@@ -198,7 +198,8 @@ class BaseLyricSourcePlugin(DBusObject):
         ticket = self._search_count
         self._search_count = self._search_count + 1
         thread = BaseTaskThread(onfinish=lambda result: self.do_searchsuccess(self._app, ticket, result),
-                                onerror=lambda e: self.do_searchfailure(self._app, ticket, e),
+                                onerror=lambda e: self.do_searchfailure(
+                                    self._app, ticket, e),
                                 target=self.do_search,
                                 kwargs={'metadata': Metadata.from_dict(metadata)})
         self._search_tasks[ticket] = thread
@@ -212,7 +213,6 @@ class BaseLyricSourcePlugin(DBusObject):
         if ticket in self._search_tasks:
             del self._search_tasks[ticket]
             self.SearchComplete(ticket, SEARCH_CANCELLED, [])
-
 
     def do_download(self, downloadinfo):
         """
@@ -249,7 +249,8 @@ class BaseLyricSourcePlugin(DBusObject):
         ticket = self._download_count
         self._download_count = self._download_count + 1
         thread = BaseTaskThread(onfinish=lambda content: self.do_downloadsuccess(self._app, ticket, content),
-                                onerror=lambda e: self.do_downloadfailure(self._app, ticket, e),
+                                onerror=lambda e: self.do_downloadfailure(
+                                    self._app, ticket, e),
                                 target=self.do_download,
                                 kwargs={'downloadinfo': downloadinfo})
         self._download_tasks[ticket] = thread
@@ -265,7 +266,7 @@ class BaseLyricSourcePlugin(DBusObject):
             self.DownloadComplete(ticket, DOWNLOAD_CANCELLED, '')
 
     @dbus_property(dbus_interface=LYRIC_SOURCE_PLUGIN_INTERFACE,
-                  type_signature='s')
+                   type_signature='s')
     def Name(self):
         return self._name
 
@@ -274,7 +275,6 @@ class BaseLyricSourcePlugin(DBusObject):
     def SearchComplete(self, ticket, status, results):
         logging.debug('search complete: ticket: %d, status: %d' % (ticket, status))
         pass
-
 
     @dbus.service.signal(dbus_interface=LYRIC_SOURCE_PLUGIN_INTERFACE,
                          signature='iiay')
@@ -323,8 +323,8 @@ def test():
                                         artist=metadata.artist + str(i),
                                         album=metadata.album + str(i),
                                         downloadinfo='\n'.join((metadata.title,
-                                                               metadata.artist,
-                                                               metadata.album)))
+                                                                metadata.artist,
+                                                                metadata.album)))
                            for i in xrange(10)]
                 return results
 
@@ -358,7 +358,7 @@ def test():
         if status == 0:
             downloadinfo = results[0]['downloadinfo']
             source.Download(downloadinfo,
-                            reply_handler=lambda t:download_reply(t, 0),
+                            reply_handler=lambda t: download_reply(t, 0),
                             error_handler=dummy_error)
         del search_tickets[ticket]
         check_quit()
@@ -375,13 +375,16 @@ def test():
             return
 
         if download_tickets[ticket] != status:
-            logging.warning('Error! expect download status %d but %d got', download_tickets[ticket], status)
+            logging.warning('Error! expect download status %d but %d got',
+                            download_tickets[ticket], status)
             return
         if status == 0:
             logging.debug('Download #%d success', ticket)
-            logging.debug('Downloaded content: \n%s', ''.join([chr(b) for b in content]))
+            logging.debug('Downloaded content: \n%s',
+                          ''.join([chr(b) for b in content]))
         else:
-            logging.warning('Download #%d fail, msg: %s', ticket, ''.join([chr(b) for b in content]))
+            logging.warning('Download #%d fail, msg: %s', ticket,
+                            ''.join([chr(b) for b in content]))
         del download_tickets[ticket]
         check_quit()
 
@@ -410,10 +413,10 @@ def test():
                   reply_handler=lambda t: search_reply(t, 0),
                   error_handler=dummy_error)
     source.Search({'foo': 'bar'},
-                  reply_handler=lambda t:search_reply(t, 2),
+                  reply_handler=lambda t: search_reply(t, 2),
                   error_handler=dummy_error)
     source.Download(123,
-                    reply_handler=lambda t:download_reply(t, 2),
+                    reply_handler=lambda t: download_reply(t, 2),
                     error_handler=dummy_error)
     app.run()
 

@@ -58,10 +58,12 @@ class ObjectTypeCls(dbus.service.Object.__class__):
 
 ObjectType = ObjectTypeCls('ObjectType', (dbus.service.Object, ), {})
 
+
 class Object(ObjectType):
     """ DBus object wrapper which provides DBus property support
     """
     # __metaclass__ = ObjectType
+
     def __init__(self, conn=None, object_path=None, bus_name=None):
         """
         Either conn or bus_name is required; object_path is also required.
@@ -118,7 +120,8 @@ class Object(ObjectType):
         """
         self._changed_props[prop_name] = emit_with_value
         if not self._prop_change_timer:
-            self._prop_change_timer = glib.idle_add(self._prop_changed_timeout_cb)
+            self._prop_change_timer = glib.idle_add(
+                self._prop_changed_timeout_cb)
 
     @dbus.service.method(dbus_interface=dbus.PROPERTIES_IFACE,
                          in_signature='ss',
@@ -134,8 +137,8 @@ class Object(ObjectType):
         if isinstance(prop, Property) and \
                 (len(iface_name) == 0 or prop.interface == iface_name):
             return getattr(self, prop_name)
-        raise dbus.exceptions.DBusException('No property of %s.%s' % (iface_name, prop_name))
-
+        raise dbus.exceptions.DBusException(
+            'No property of %s.%s' % (iface_name, prop_name))
 
     @dbus.service.method(dbus_interface=dbus.PROPERTIES_IFACE,
                          in_signature='ssv',
@@ -153,7 +156,8 @@ class Object(ObjectType):
                 (len(iface_name) == 0 or prop.interface == iface_name):
             prop.dbus_set(self, value)
         else:
-            raise dbus.exceptions.DBusException('No property of %s.%s' % (iface_name, prop_name))
+            raise dbus.exceptions.DBusException(
+                'No property of %s.%s' % (iface_name, prop_name))
 
     @dbus.service.method(dbus_interface=dbus.PROPERTIES_IFACE,
                          in_signature='s',
@@ -165,7 +169,8 @@ class Object(ObjectType):
         - `iface_name`:
         """
         ret = {}
-        property_dict = self._dbus_property_table[self.__class__.__module__ + '.' + self.__class__.__name__]
+        property_dict = self._dbus_property_table[
+            self.__class__.__module__ + '.' + self.__class__.__name__]
 
         if iface_name != '' and iface_name in property_dict:
             for prop_name, prop in property_dict[iface_name].iteritems():
@@ -181,7 +186,8 @@ class Object(ObjectType):
     @dbus.service.signal(dbus_interface=dbus.PROPERTIES_IFACE,
                          signature='sa{sv}as')
     def PropertiesChanged(self, iface_name, changed_props, invalidated_props):
-        logging.debug('%s changed: %s invalidated: %s', iface_name, changed_props, invalidated_props)
+        logging.debug('%s changed: %s invalidated: %s',
+                      iface_name, changed_props, invalidated_props)
         pass
 
     @dbus.service.method(dbus.service.INTROSPECTABLE_IFACE, in_signature='', out_signature='s',
@@ -191,7 +197,8 @@ class Object(ObjectType):
         Patch for dbus.service.Object to add property introspection data
         """
         xml = dbus.service.Object.Introspect(self, object_path, connection)
-        property_dict = self._dbus_property_table[self.__class__.__module__ + '.' + self.__class__.__name__]
+        property_dict = self._dbus_property_table[
+            self.__class__.__module__ + '.' + self.__class__.__name__]
         if property_dict == {}:
             return xml
         node = xet.XML(xml)
@@ -271,6 +278,7 @@ def property(type_signature,
                         fget=fget)
     return dec_handler
 
+
 def _property2element(prop):
     """
     Convert an osdlyrics.dbusext.service.Property object to
@@ -291,6 +299,7 @@ def _property2element(prop):
                                  value=prop.emit_change)
         elem.append(annotation)
     return elem
+
 
 def test():
     BUS_NAME = 'org.example.test'
@@ -350,7 +359,8 @@ def test():
     def get_reply_handler(expected_value):
         def handler(value):
             if value != expected_value:
-                logging.warning('Get failed, expect %s but %s got', expected_value, value)
+                logging.warning(
+                    'Get failed, expect %s but %s got', expected_value, value)
             else:
                 logging.debug('Get succesful')
         return handler
@@ -361,7 +371,9 @@ def test():
                 if not k in expected_dict:
                     logging.warning('GetAll: unexpected key %s', k)
                 elif v != expected_dict[k]:
-                    logging.warning('GetAll: expected value of key %s is %s but %s got', k, expected_dict[k], v)
+                    logging.warning(
+                        'GetAll: expected value of key %s is %s but %s got',
+                        k, expected_dict[k], v)
             for k in expected_dict.iterkeys():
                 if not k in value:
                     logging.warning('GetAll: missing key %s', k)
@@ -386,7 +398,8 @@ def test():
     def test_timeout():
         proxy = conn.get_object(BUS_NAME, PATH)
         proxy.GetAll('',
-                     reply_handler=get_all_reply_handler({'foo': DEFAULT_VALUE, 'baz': 'baz'}),
+                     reply_handler=get_all_reply_handler(
+                         {'foo': DEFAULT_VALUE, 'baz': 'baz'}),
                      error_handler=error_handler)
         proxy.GetAll('another.iface',
                      reply_handler=get_all_reply_handler({'baz': 'baz'}),
@@ -403,7 +416,8 @@ def test():
         proxy.Introspect(reply_handler=introspect_reply_handler,
                          error_handler=error_handler)
         proxy.Set('another.iface', 'foo', 'should not success',
-                  reply_handler=msg_handler('Set error, should raise an error'),
+                  reply_handler=msg_handler(
+                      'Set error, should raise an error'),
                   error_handler=msg_handler('Set succesful, an expected exception'))
         proxy.Set('another.iface', 'baz', 'new value of baz',
                   reply_handler=set_reply_handler,

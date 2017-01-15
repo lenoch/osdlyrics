@@ -25,6 +25,7 @@ import dbus
 
 from . import utils
 
+
 class Metadata(object):
     """
     Metadata of a track
@@ -149,16 +150,18 @@ class Metadata(object):
         file:///path/to/file
         """
         ret = dbus.Dictionary(signature='sv')
-        mpris2map = { 'title': 'xesam:title',
-                      'album': 'xesam:album',
-                      'arturl': 'mpris:artUrl',
-                      'location': 'xesam:url',
-                      }
+        mpris2map = {'title': 'xesam:title',
+                     'album': 'xesam:album',
+                     'arturl': 'mpris:artUrl',
+                     'location': 'xesam:url',
+                     }
         for k in ['title', 'album', 'arturl', 'location']:
             if getattr(self, k) is not None:
-                ret[mpris2map[k]] = dbus.String(utils.ensure_unicode(getattr(self, k)))
+                ret[mpris2map[k]] = dbus.String(
+                    utils.ensure_unicode(getattr(self, k)))
         if self.artist is not None:
-            ret['xesam:artist'] = [dbus.String(v.strip()) for v in self.artist.split(',')]
+            ret['xesam:artist'] = [dbus.String(
+                v.strip()) for v in self.artist.split(',')]
         if self.length >= 0:
             ret['mpris:length'] = dbus.Int64(self.length)
         if self.tracknum >= 0:
@@ -280,7 +283,7 @@ class Metadata(object):
             for dict_key in v:
                 if dict_key in dbusdict:
                     kargs[k] = dbusdict[dict_key]
-                    break;
+                    break
         # artist
         for k, v in string_list_dict.items():
             if k not in kargs and v in dbusdict:
@@ -296,7 +299,8 @@ class Metadata(object):
                 if not re.match(r'\d+(/\d+)?', tracknumber):
                     logging.warning('Malfromed tracknumber: %s' % tracknumber)
                 else:
-                    kargs['tracknum'] = int(dbusdict['tracknumber'].split('/')[0])
+                    kargs['tracknum'] = int(
+                        dbusdict['tracknumber'].split('/')[0])
         if 'tracknum' not in kargs and 'xesam:trackNumber' in dbusdict:
             kargs['tracknum'] = int(dbusdict['xesam:trackNumber'])
 
