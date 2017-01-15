@@ -70,8 +70,10 @@ class ProxyObject(BasePlayerProxy):
         super(ProxyObject, self).__init__('Mpris1')
 
     def _get_player_from_bus_names(self, names):
-        return [player_info_from_name(name[len(MPRIS1_PREFIX):]) for name in names
-                if name.startswith(MPRIS1_PREFIX) and not name.startswith(MPRIS1_PREFIX + 'MediaPlayer2.')]
+        return [
+            player_info_from_name(name[len(MPRIS1_PREFIX):]) for name in names
+            if name.startswith(MPRIS1_PREFIX) and
+            not name.startswith(MPRIS1_PREFIX + 'MediaPlayer2.')]
 
     def do_list_active_players(self):
         return self._get_player_from_bus_names(self.connection.list_names())
@@ -98,18 +100,17 @@ class Mpris1Player(BasePlayer):
         self._status_tuple = None, None, None, None
         self._use_cached_status = False
         try:
-            self._player = dbus.Interface(self.connection.get_object(MPRIS1_PREFIX + player_name,
-                                                                     '/Player'),
-                                          MPRIS1_INTERFACE)
+            self._player = dbus.Interface(self.connection.get_object(
+                MPRIS1_PREFIX + player_name, '/Player'), MPRIS1_INTERFACE)
             mpris1_service_name = MPRIS1_PREFIX + player_name
-            self._signals.append(self._player.connect_to_signal('TrackChange',
-                                                                self._track_change_cb))
-            self._signals.append(self._player.connect_to_signal('StatusChange',
-                                                                self._status_change_cb))
-            self._signals.append(self._player.connect_to_signal('CapsChange',
-                                                                self._caps_change_cb))
-            self._name_watch = self.connection.watch_name_owner(mpris1_service_name,
-                                                                self._name_lost)
+            self._signals.append(self._player.connect_to_signal(
+                'TrackChange', self._track_change_cb))
+            self._signals.append(self._player.connect_to_signal(
+                'StatusChange', self._status_change_cb))
+            self._signals.append(self._player.connect_to_signal(
+                'CapsChange', self._caps_change_cb))
+            self._name_watch = self.connection.watch_name_owner(
+                mpris1_service_name, self._name_lost)
         except Exception as e:
             logging.error(
                 'Fail to connect to mpris1 player %s: %s', player_name, e)

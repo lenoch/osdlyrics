@@ -243,5 +243,6 @@ def run():
     mpris2 = ProxyObject()
     mpris2.run()
 
+
 if __name__ == '__main__':
     run()

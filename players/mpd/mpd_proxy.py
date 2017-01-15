@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with OSD Lyrics.  If not, see <http://www.gnu.org/licenses/>.
-#/
+#
 
 """MPD support for OSD Lyrics. Requires MPD >= 0.16 and mpd-python >= 0.3
 """
@@ -335,7 +335,7 @@ class MpdPlayer(BasePlayer):
         logging.debug('status\n%s', status)
         changes = set()
         for prop, handler in self.STATUS_CHANGE_MAP.items():
-            if not prop in status:
+            if prop not in status:
                 value = None
             else:
                 funcname = handler[0]
@@ -482,6 +482,7 @@ class MpdPlayer(BasePlayer):
             'position': self.get_position()
         })
         return ret
+
 
 if __name__ == '__main__':
     proxy = MpdProxy()

@@ -99,9 +99,10 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                       })
     def do_connect(self, params):
         logging.debug('caps: %s', params['caps'])
-        return json.dumps({'id': self.server.player_proxy.add_player(params['name'],
-                                                                     params['caps']),
-                           })
+        return json.dumps({
+            'id': self.server.player_proxy.add_player(params['name'],
+                                                      params['caps']),
+        })
 
     @validate_params({'id': param_str(),
                       'timestamp': param_int(),
