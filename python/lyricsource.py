@@ -273,14 +273,15 @@ class BaseLyricSourcePlugin(DBusObject):
     @dbus.service.signal(dbus_interface=LYRIC_SOURCE_PLUGIN_INTERFACE,
                          signature='iiaa{sv}')
     def SearchComplete(self, ticket, status, results):
-        logging.debug('search complete: ticket: %d, status: %d' % (ticket, status))
-        pass
+        logging.debug('search complete: ticket: %d, status: %d',
+                      ticket, status)
 
     @dbus.service.signal(dbus_interface=LYRIC_SOURCE_PLUGIN_INTERFACE,
                          signature='iiay')
     def DownloadComplete(self, ticket, status, result):
-        logging.debug('download complete: ticket: %d, status: %d' % (ticket, status), '' if status == DOWNLOAD_SUCCEED else ', result: %s' % result)
-        pass
+        logging.debug('download complete: ticket: %d, status: %d%s',
+                      ticket, status, '' if status == DOWNLOAD_SUCCEED else
+                      ', result: %s' % result)
 
     def run(self):
         """

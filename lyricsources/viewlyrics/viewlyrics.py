@@ -30,7 +30,9 @@ VIEWLYRICS_HOST = 'search.crintsoft.com'
 VIEWLYRICS_SEARCH_URL = '/searchlyrics.htm'
 VIEWLYRICS_BASE_LRC_URL = 'http://viewlyrics.com/'
 
-VIEWLYRICS_QUERY_FORM = '<?xml version=\'1.0\' encoding=\'utf-8\' ?><searchV1 artist=\"%artist\" title=\"%title\"%etc />'
+VIEWLYRICS_QUERY_FORM = """\
+<?xml version='1.0' encoding='utf-8' ?>\
+<searchV1 artist="%artist" title="%title"%etc />"""
 VIEWLYRICS_AGENT = 'MiniLyrics'
 VIEWLYRICS_KEY = 'Mlv1clt4.0'
 
@@ -41,7 +43,8 @@ def normalize_str(s):
     """
     try:
         return ''.join(x for x in unicodedata.normalize('NFKD', s)
-                       if x in string.ascii_letters or x in string.digits).lower()
+                       if x in string.ascii_letters or
+                       x in string.digits).lower()
     except TypeError:
         return s
 
@@ -80,8 +83,10 @@ class ViewlyricsSource(BaseLyricSourcePlugin):
         # Prioritize results whose artist matches
         if metadata.artist and metadata.title:
             n_artist = normalize_str(artist)
+
             def res_has_same_artist(result):
                 return normalize_str(result._artist) == n_artist
+
             result.sort(key=res_has_same_artist, reverse=True)
 
         return result
@@ -91,7 +96,9 @@ class ViewlyricsSource(BaseLyricSourcePlugin):
         query = query.replace('%title', title)
         query = query.replace('%artist', artist)
         query = ensure_utf8(query.replace(
-            '%etc', ' client=\"MiniLyrics\" RequestPage=\'%d\'' % page))  # Needs real RequestPage
+            '%etc',
+            # Needs real RequestPage
+            ' client=\"MiniLyrics\" RequestPage=\'%d\'' % page))
 
         queryhash = hashlib.md5()
         queryhash.update(query)
@@ -103,7 +110,8 @@ class ViewlyricsSource(BaseLyricSourcePlugin):
         status, content = http_download(url=url,
                                         method='POST',
                                         params=masterquery,
-                                        proxy=get_proxy_settings(self.config_proxy))
+                                        proxy=get_proxy_settings(
+                                            self.config_proxy))
 
         if status < 200 or status >= 400:
             raise httplib.HTTPException(status, '')
@@ -118,24 +126,27 @@ class ViewlyricsSource(BaseLyricSourcePlugin):
         pagesleft = 0
         tagreturn = parseString(deccontent).getElementsByTagName('return')[0]
         if tagreturn:
-                pagesleftstr = self.alternative_gettagattribute(tagreturn.attributes.items(), 'PageCount') #tagreturn.attributes['PageCount'].value
-                if pagesleftstr == '':
-                    pagesleft = 0
-                else:
-                    pagesleft = int(pagesleftstr)
-                tagsfileinfo = tagreturn.getElementsByTagName('fileinfo')
-                if tagsfileinfo:
-                    for onefileinfo in tagsfileinfo:
-                        if onefileinfo.hasAttribute('link'):
-                            title = onefileinfo.getAttribute('title')
-                            artist = onefileinfo.getAttribute('artist')
-                            album = onefileinfo.getAttribute('album')
-                            url = VIEWLYRICS_BASE_LRC_URL + onefileinfo.getAttribute('link')
-                            result.append(SearchResult(title=title,
-                                                       artist=artist,
-                                                       album=album,
-                                                       sourceid=self.id,
-                                                       downloadinfo=url))
+            pagesleftstr = self.alternative_gettagattribute(
+                # tagreturn.attributes['PageCount'].value
+                tagreturn.attributes.items(), 'PageCount')
+            if pagesleftstr == '':
+                pagesleft = 0
+            else:
+                pagesleft = int(pagesleftstr)
+            tagsfileinfo = tagreturn.getElementsByTagName('fileinfo')
+            if tagsfileinfo:
+                for onefileinfo in tagsfileinfo:
+                    if onefileinfo.hasAttribute('link'):
+                        title = onefileinfo.getAttribute('title')
+                        artist = onefileinfo.getAttribute('artist')
+                        album = onefileinfo.getAttribute('album')
+                        url = VIEWLYRICS_BASE_LRC_URL + \
+                            onefileinfo.getAttribute('link')
+                        result.append(SearchResult(title=title,
+                                                   artist=artist,
+                                                   album=album,
+                                                   sourceid=self.id,
+                                                   downloadinfo=url))
         return result, (pagesleft - page)
 
     def alternative_gettagattribute(self, attrs, key):
@@ -150,13 +161,14 @@ class ViewlyricsSource(BaseLyricSourcePlugin):
         # downloadinfo is what you set in SearchResult
         if not isinstance(downloadinfo, str) and \
                 not isinstance(downloadinfo, unicode):
-            raise TypeError('Expect the downloadinfo as a string of url, but got type ',
-                            type(downloadinfo))
-        status, content = http_download(url=downloadinfo,
-                                        proxy=get_proxy_settings(self.config_proxy))
+            raise TypeError('Expect the downloadinfo as a string of url, but '
+                            'got type {}'.format(type(downloadinfo)))
+        status, content = http_download(
+            url=downloadinfo, proxy=get_proxy_settings(self.config_proxy))
         if status < 200 or status >= 400:
             raise httplib.HTTPException(status, '')
         return content
+
 
 if __name__ == '__main__':
     viewlyrics = ViewlyricsSource()

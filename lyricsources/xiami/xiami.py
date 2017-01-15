@@ -31,7 +31,10 @@ _ = gettext.gettext
 XIAMI_HOST = 'www.xiami.com'
 XIAMI_SEARCH_URL = '/search'
 XIAMI_LRC_URL = '/song/playlist/id/'
-XIAMI_SEARCH_PATTERN = re.compile(r'(<a [^<]*?href="/song/(\d+).*?>).*?(<a [^<]*?href="/artist/.*?>).*?(<a [^<]*?href="/album/.*?>)', re.DOTALL)
+XIAMI_SEARCH_PATTERN = re.compile(
+    r'(<a [^<]*?href="/song/(\d+).*?>).*?'
+    r'(<a [^<]*?href="/artist/.*?>).*?'
+    r'(<a [^<]*?href="/album/.*?>)', re.DOTALL)
 XIAMI_URL_PATTERN = re.compile(r'<lyric>(.*?)</lyric>', re.DOTALL)
 TITLE_ATTR_PATTERN = re.compile(r'title="(.*?)"')
 
@@ -61,7 +64,8 @@ class XiamiSource(BaseLyricSourcePlugin):
         url = XIAMI_HOST + XIAMI_SEARCH_URL
         status, content = http_download(url=url,
                                         params={'key': urlkey},
-                                        proxy=get_proxy_settings(self.config_proxy))
+                                        proxy=get_proxy_settings(
+                                            self.config_proxy))
         if status < 200 or status >= 400:
             raise httplib.HTTPException(status, '')
         match = XIAMI_SEARCH_PATTERN.findall(content)
@@ -81,8 +85,9 @@ class XiamiSource(BaseLyricSourcePlugin):
         return result
 
     def get_url(self, id):
-        status, content = http_download(url=XIAMI_HOST + XIAMI_LRC_URL + str(id),
-                                        proxy=get_proxy_settings(self.config_proxy))
+        status, content = http_download(
+            url=XIAMI_HOST + XIAMI_LRC_URL + str(id),
+            proxy=get_proxy_settings(self.config_proxy))
         if status < 200 or status >= 400:
             return None
         match = XIAMI_URL_PATTERN.search(content)
@@ -97,16 +102,17 @@ class XiamiSource(BaseLyricSourcePlugin):
     def do_download(self, downloadinfo):
         if not isinstance(downloadinfo, str) and \
                 not isinstance(downloadinfo, unicode):
-            raise TypeError('Expect the downloadinfo as a string of url, but got type ',
-                            type(downloadinfo))
+            raise TypeError('Expect the downloadinfo as a string of url, but '
+                            'got type '.format(type(downloadinfo)))
         # parts = urlparse.urlparse(downloadinfo)
-        status, content = http_download(downloadinfo,
-                                        proxy=get_proxy_settings(self.config_proxy))
+        status, content = http_download(
+            downloadinfo, proxy=get_proxy_settings(self.config_proxy))
         if status < 200 or status >= 400:
             raise httplib.HTTPException(status)
         if content:
             content = HTMLParser.HTMLParser().unescape(content.decode('utf-8'))
         return content.encode('utf-8')
+
 
 if __name__ == '__main__':
     xiami = XiamiSource()

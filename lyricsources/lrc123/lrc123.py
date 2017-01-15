@@ -29,7 +29,12 @@ from osdlyrics.utils import http_download, get_proxy_settings
 
 HOST = 'www.lrc123.com'
 SEARCH_URL = '/?keyword=%s&field=all'
-RESULT_PATTERN = re.compile(r'<div class="newscont .*?href="/\?field=singer.*?>(.*?)</a>.*?href="/\?field=album.*?>(.*?)</a>.*?href="/\?field=song.*?>(.*?)</a>.*?href="/download/lrc/(.*?)">LRC', re.DOTALL)
+RESULT_PATTERN = re.compile(
+    r'<div class="newscont .*?'
+    r'href="/\?field=singer.*?>(.*?)</a>.*?'
+    r'href="/\?field=album.*?>(.*?)</a>.*?'
+    r'href="/\?field=song.*?>(.*?)</a>.*?'
+    r'href="/download/lrc/(.*?)">LRC', re.DOTALL)
 DOWNLOAD_URL_PREFIX = '/download/lrc/'
 
 
@@ -84,13 +89,15 @@ class Lrc123Source(BaseLyricSourcePlugin):
     def do_download(self, downloadinfo):
         if not isinstance(downloadinfo, str) and \
                 not isinstance(downloadinfo, unicode):
-            raise TypeError('Expect the downloadinfo as a string of url, but got type ',
-                            type(downloadinfo))
-        status, content = http_download(url=HOST + downloadinfo,
-                                        proxy=get_proxy_settings(self.config_proxy))
+            raise TypeError('Expect the downloadinfo as a string of url, but '
+                            'got type {}'.format(type(downloadinfo)))
+        status, content = http_download(
+            url=HOST + downloadinfo,
+            proxy=get_proxy_settings(self.config_proxy))
         if status < 200 or status >= 400:
             raise httplib.HTTPException(status, '')
         return content
+
 
 if __name__ == '__main__':
     lrc123 = Lrc123Source()

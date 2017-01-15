@@ -42,7 +42,8 @@ def validateticket(component):
                 return
             source = self._sources[source_id]
             if ticket not in source[component]:
-                logging.warning('%s is not valid %s ticket of source %s' % (ticket, component, source_id))
+                logging.warning('%s is not valid %s ticket of source %s',
+                                ticket, component, source_id)
                 return
             func(self, source_id, ticket, *args, **kwargs)
         return dec_func
@@ -70,12 +71,14 @@ class LyricSource(dbus.service.Object):
             try:
                 self._connect_source(bus_name, False)
             except Exception as e:
-                logging.warning('Fail to connect source %s: %s' % (bus_name, e))
+                logging.warning('Fail to connect source %s: %s',
+                                bus_name, e)
         for bus_name in self.connection.list_activatable_names():
             try:
                 self._connect_source(bus_name, True)
             except Exception as e:
-                logging.warning('Fail to connect source %s: %s' % (bus_name, e))
+                logging.warning('Fail to connect source %s: %s',
+                                bus_name, e)
 
     def _connect_source(self, bus_name, activate):
         if not bus_name.startswith(LYRIC_SOURCE_PLUGIN_BUS_NAME_PREFIX):
@@ -88,7 +91,8 @@ class LyricSource(dbus.service.Object):
             try:
                 self.connection.activate_name_owner(bus_name)
             except Exception as e:
-                logging.warning('Cannot activate lyric source %s: %s' % (bus_name, e))
+                logging.warning('Cannot activate lyric source %s: %s',
+                                bus_name, e)
                 return
         path = LYRIC_SOURCE_PLUGIN_OBJECT_PATH_PREFIX + source_id
         proxy = dbus.Interface(self.connection.get_object(bus_name, path),
@@ -162,7 +166,8 @@ class LyricSource(dbus.service.Object):
 
     def _set_source_search(self, sourceid, sourceticket, value):
         if sourceticket in self._sources[sourceid]['search']:
-            raise KeyError('ticket %d exists in source search tasks', sourceticket)
+            raise KeyError('ticket {} exists in source search tasks'.format(
+                sourceticket))
         self._sources[sourceid]['search'][sourceticket] = value
 
     def _del_source_search(self, sourceid, sourceticket):
@@ -173,7 +178,8 @@ class LyricSource(dbus.service.Object):
 
     def _set_source_download(self, sourceid, sourceticket, value):
         if sourceticket in self._sources[sourceid]['download']:
-            raise KeyError('ticket %d exists in source download tasks', sourceticket)
+            raise KeyError('ticket {} exists in source download tasks'.format(
+                sourceticket))
         self._sources[sourceid]['download'][sourceticket] = value
 
     def _del_source_download(self, sourceid, sourceticket):
@@ -197,7 +203,8 @@ class LyricSource(dbus.service.Object):
                 nextsource).Search(task['metadata'])
             self._set_source_search(nextsource, newticket, ticket)
             task['ticket'] = newticket
-            self.SearchStarted(ticket, nextsource, self._sources[nextsource]['name'])
+            self.SearchStarted(ticket, nextsource,
+                               self._sources[nextsource]['name'])
 
     @dbus.service.signal(dbus_interface=LYRIC_SOURCE_INTERFACE,
                          signature='iiaa{sv}')
