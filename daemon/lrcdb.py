@@ -29,7 +29,8 @@ from osdlyrics.consts import METADATA_URI, METADATA_TITLE, METADATA_ALBUM, \
 
 __all__ = (
     'LrcDb',
-    )
+)
+
 
 def normalize_location(location):
     """
@@ -51,6 +52,7 @@ def normalize_location(location):
     location = ensure_unicode(location)
     return location
 
+
 def query_param_from_metadata(metadata):
     """
     Generate query dict from metadata
@@ -59,7 +61,7 @@ def query_param_from_metadata(metadata):
         METADATA_TITLE: ensure_unicode(metadata.title) if metadata.title is not None else '',
         METADATA_ARTIST: ensure_unicode(metadata.artist) if metadata.artist is not None else '',
         METADATA_ALBUM: ensure_unicode(metadata.album) if metadata.album is not None else '',
-        }
+    }
     try:
         tracknum = int(metadata.tracknum)
         if tracknum < 0:
@@ -69,10 +71,11 @@ def query_param_from_metadata(metadata):
     param[METADATA_TRACKNUM] = tracknum
     return param
 
+
 class LrcDb(object):
     """ Database to store location of LRC files
     """
-    
+
     TABLE_NAME = 'lyrics'
 
     CREATE_TABLE = """
@@ -95,8 +98,8 @@ UPDATE %s
   SET lrcpath=?
   WHERE uri=?
 """ % TABLE_NAME
-    
-    FIND_LYRIC = 'SELECT lrcpath FROM %s WHERE ' % TABLE_NAME;
+
+    FIND_LYRIC = 'SELECT lrcpath FROM %s WHERE ' % TABLE_NAME
 
     QUERY_LOCATION = 'uri = ?'
 
@@ -107,7 +110,7 @@ UPDATE %s
 
     def __init__(self, dbfile=None):
         """
-        
+
         Arguments:
         - `dbfile`: The sqlite db to open
         """
@@ -139,9 +142,12 @@ UPDATE %s
             logging.debug('Assign lyric file %s to track of location %s' % (uri, location))
             c.execute(LrcDb.UPDATE_LYRIC, (uri, location,))
         else:
-            title = ensure_unicode(metadata.title) if metadata.title is not None else ''
-            artist = ensure_unicode(metadata.artist) if metadata.artist is not None else ''
-            album = ensure_unicode(metadata.album) if metadata.album is not None else ''
+            title = ensure_unicode(
+                metadata.title) if metadata.title is not None else ''
+            artist = ensure_unicode(
+                metadata.artist) if metadata.artist is not None else ''
+            album = ensure_unicode(
+                metadata.album) if metadata.album is not None else ''
             try:
                 tracknum = int(metadata.tracknum)
                 if tracknum < 0:
@@ -160,7 +166,7 @@ UPDATE %s
         with the ``location`` attribute in metadata. If not found or ``location`` is
         not specified, try to find with respect to ``title``, ``artist``, ``album``
         and ``tracknumber``
-        
+
         If found, return the uri of the LRC file. Otherwise return None. Note that
         this method may return an empty string, so use ``is None`` to figure out
         whether an uri is found
@@ -198,6 +204,7 @@ UPDATE %s
             return self._find_by_condition(' AND '.join(query),
                                            query_param_from_metadata(metadata))
         return None
+
 
 def test():
     """

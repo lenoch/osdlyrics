@@ -62,7 +62,7 @@ class PlayerSupport(dbus.service.Object):
 
     def _start_detect_player(self):
         self._detect_timer = glib.timeout_add(self.DETECT_PLAYER_TIMEOUT,
-                                              lambda : not self._detect_player())
+                                              lambda: not self._detect_player())
 
     def _detect_player(self):
         """
@@ -240,12 +240,15 @@ class Mpris2Player(DBusObject):
                                                             self._seeked_cb))
         self._signals.append(self._player.connect_to_signal('PropertiesChanged',
                                                             self._properties_changed_cb))
-        self.PlaybackStatus = self._player.Get(MPRIS2_PLAYER_INTERFACE, 'PlaybackStatus')
-        self.LoopStatus = self._player.Get(MPRIS2_PLAYER_INTERFACE, 'LoopStatus')
+        self.PlaybackStatus = self._player.Get(
+            MPRIS2_PLAYER_INTERFACE, 'PlaybackStatus')
+        self.LoopStatus = self._player.Get(
+            MPRIS2_PLAYER_INTERFACE, 'LoopStatus')
         self.Shuffle = self._player.Get(MPRIS2_PLAYER_INTERFACE, 'Shuffle')
         self.Metadata = self._player.Get(MPRIS2_PLAYER_INTERFACE, 'Metadata')
         self._setup_timer_status(self._playback_status)
-        self._timer.time = self._player.Get(MPRIS2_PLAYER_INTERFACE, 'Position')
+        self._timer.time = self._player.Get(
+            MPRIS2_PLAYER_INTERFACE, 'Position')
 
     def disconnect_player(self):
         for signal in self._signals:
@@ -260,7 +263,7 @@ class Mpris2Player(DBusObject):
             'Playing': 'play',
             'Paused': 'pause',
             'Stopped': 'stop',
-            }
+        }
         if status in status_map:
             getattr(self._timer, status_map[status])()
 

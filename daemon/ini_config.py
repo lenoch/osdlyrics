@@ -34,11 +34,13 @@ class MalformedKeyError(osdlyrics.errors.BaseError):
     def __init__(self, *args):
         super(MalformedKeyError, self).__init__(*args)
 
+
 class ValueNotExistError(osdlyrics.errors.BaseError):
     def __init__(self, key=''):
         super(ValueNotExistError, self).__init__(
             'Value of key %s does not exist' % key
-            )
+        )
+
 
 class IniConfig(dbus.service.Object):
     """ Implement org.osdlyrics.Config
@@ -64,7 +66,7 @@ class IniConfig(dbus.service.Object):
             raise MalformedKeyError(
                 '%s is an invalid key. Keys must be in the form '
                 'of "Section/Name"' % key
-                )
+            )
         if len(parts[0]) == 0 or len(parts[1]) == 0:
             raise MalformedKeyError(
                 'Malformed key "%s". Section or name must not be empty' % key)
@@ -202,6 +204,7 @@ class IniConfig(dbus.service.Object):
     def ValueChanged(self, changed):
         pass
 
+
 def split(value, sep=';'):
     r"""
     >>> split('')
@@ -244,6 +247,7 @@ def split(value, sep=';'):
         curr = curr + 1
     return ret
 
+
 def join(values, sep=';'):
     r"""
     >>> join([])
@@ -266,9 +270,11 @@ def join(values, sep=';'):
         result.append(item.replace('\\', '\\\\').replace(sep, '\\;'))
     return sep.join(result) + sep
 
+
 def test():
     import doctest
     doctest.testmod()
+
 
 def run():
     app = App('Config')
