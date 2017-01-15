@@ -32,6 +32,7 @@ SEARCH_URL = '/?keyword=%s&field=all'
 RESULT_PATTERN = re.compile(r'<div class="newscont .*?href="/\?field=singer.*?>(.*?)</a>.*?href="/\?field=album.*?>(.*?)</a>.*?href="/\?field=song.*?>(.*?)</a>.*?href="/download/lrc/(.*?)">LRC', re.DOTALL)
 DOWNLOAD_URL_PREFIX = '/download/lrc/'
 
+
 class Lrc123Source(BaseLyricSourcePlugin):
     """ Lyric source from xiami.com
     """
@@ -66,9 +67,12 @@ class Lrc123Source(BaseLyricSourcePlugin):
         result = []
         if match:
             for artist, album, title, url in match:
-                title = title.replace('<span class="highlighter">', '').replace('</span>', '')
-                artist = artist.replace('<span class="highlighter">', '').replace('</span>', '')
-                album = album.replace('<span class="highlighter">', '').replace('</span>', '')
+                title = title.replace(
+                    '<span class="highlighter">', '').replace('</span>', '')
+                artist = artist.replace(
+                    '<span class="highlighter">', '').replace('</span>', '')
+                album = album.replace(
+                    '<span class="highlighter">', '').replace('</span>', '')
                 url = DOWNLOAD_URL_PREFIX + url
                 result.append(SearchResult(title=title,
                                            artist=artist,
@@ -82,7 +86,7 @@ class Lrc123Source(BaseLyricSourcePlugin):
                 not isinstance(downloadinfo, unicode):
             raise TypeError('Expect the downloadinfo as a string of url, but got type ',
                             type(downloadinfo))
-        status, content = http_download(url=HOST+downloadinfo,
+        status, content = http_download(url=HOST + downloadinfo,
                                         proxy=get_proxy_settings(self.config_proxy))
         if status < 200 or status >= 400:
             raise httplib.HTTPException(status, '')

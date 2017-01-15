@@ -34,6 +34,7 @@ VIEWLYRICS_QUERY_FORM = '<?xml version=\'1.0\' encoding=\'utf-8\' ?><searchV1 ar
 VIEWLYRICS_AGENT = 'MiniLyrics'
 VIEWLYRICS_KEY = 'Mlv1clt4.0'
 
+
 def normalize_str(s):
     """ If s is a unicode string, only keep alphanumeric characters and remove
         diacritics
@@ -44,21 +45,23 @@ def normalize_str(s):
     except TypeError:
         return s
 
+
 class ViewlyricsSource(BaseLyricSourcePlugin):
     def __init__(self):
-        
-        BaseLyricSourcePlugin.__init__(self, id='viewlyrics', name='ViewLyrics')
+
+        BaseLyricSourcePlugin.__init__(
+            self, id='viewlyrics', name='ViewLyrics')
 
     def do_search(self, metadata):
         if metadata.title:
-            title =  metadata.title
+            title = metadata.title
         else:
-            title =  ''
+            title = ''
         if metadata.artist:
             artist = metadata.artist
         else:
             artist = ''
-        
+
         result = []
         page = 0
         pagesleft = 1
@@ -83,33 +86,34 @@ class ViewlyricsSource(BaseLyricSourcePlugin):
 
         return result
 
-    def real_search(self, title='', artist='', page = 0):
+    def real_search(self, title='', artist='', page=0):
         query = VIEWLYRICS_QUERY_FORM
-        query =  query.replace('%title', title)
-        query =  query.replace('%artist', artist)
-        query =  ensure_utf8(query.replace('%etc', ' client=\"MiniLyrics\" RequestPage=\'%d\'' % page)) #Needs real RequestPage
-        
+        query = query.replace('%title', title)
+        query = query.replace('%artist', artist)
+        query = ensure_utf8(query.replace(
+            '%etc', ' client=\"MiniLyrics\" RequestPage=\'%d\'' % page))  # Needs real RequestPage
+
         queryhash = hashlib.md5()
         queryhash.update(query)
         queryhash.update(VIEWLYRICS_KEY)
-        
+
         masterquery = '\2\0\4\0\0\0' + queryhash.digest() + query
-        
+
         url = VIEWLYRICS_HOST + VIEWLYRICS_SEARCH_URL
         status, content = http_download(url=url,
                                         method='POST',
                                         params=masterquery,
                                         proxy=get_proxy_settings(self.config_proxy))
-        
+
         if status < 200 or status >= 400:
-                raise httplib.HTTPException(status, '')
-        
+            raise httplib.HTTPException(status, '')
+
         contentbytes = map(ord, content)
         codekey = contentbytes[1]
         deccontent = ''
         for char in contentbytes[22:]:
-                deccontent += unichr(char ^ codekey)
-        
+            deccontent += unichr(char ^ codekey)
+
         result = []
         pagesleft = 0
         tagreturn = parseString(deccontent).getElementsByTagName('return')[0]
