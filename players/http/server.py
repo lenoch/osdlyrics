@@ -25,7 +25,8 @@ import urlparse
 
 from osdlyrics.metadata import Metadata
 from osdlyrics.player_proxy import (CAPS_NEXT, CAPS_PAUSE, CAPS_PLAY,
-    CAPS_PREV, CAPS_SEEK, STATUS_PAUSED, STATUS_PLAYING, STATUS_STOPPED)
+                                    CAPS_PREV, CAPS_SEEK, STATUS_PAUSED,
+                                    STATUS_PLAYING, STATUS_STOPPED)
 
 from error import BadRequestError, HttpError, NotFoundError
 from validator import (param_enum, param_int, param_set, param_str,
@@ -40,6 +41,7 @@ PARAM_CAPS = param_set({'play': CAPS_PLAY,
                         'prev': CAPS_PREV,
                         'seek': CAPS_SEEK})
 
+
 def parse_query(query):
     """ Parse query strings in GET or POST to a dict
 
@@ -47,7 +49,7 @@ def parse_query(query):
     values as the query values. If a query name does not have a value, the
     value to the key is True. If more than one value assigned to the query name,
     any one may be assigned to the key.
-    
+
     Arguments:
     - `query`: A string like 'query1=value&query2=value'
     """
@@ -60,10 +62,11 @@ def parse_query(query):
             ret[k] = v[0]
     return ret
 
+
 class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """ Handles HTTP request
     """
-    
+
     server_version = 'OsdLyricsHttp/1.0'
 
     def _send_content(self, content):
@@ -104,7 +107,8 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                       'timestamp': param_int(),
                       })
     def do_query(self, params):
-        cmds, timestamp = self.get_player(params['id']).query(params['timestamp'])
+        cmds, timestamp = self.get_player(
+            params['id']).query(params['timestamp'])
         return json.dumps({'cmds': cmds, 'timestamp': timestamp})
 
     @validate_params({'id': param_str(),
@@ -149,16 +153,16 @@ class RequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             return self.server.player_proxy.get_player(name)
         except:
             raise BadRequestError('Invalid player id: %s' % name)
-        
+
 
 class HttpServer(BaseHTTPServer.HTTPServer):
     """
     Lyrics Http server
     """
-    
+
     def __init__(self, server_address, player_proxy):
         """
-        
+
         Arguments:
         - `server_address`:
         """
@@ -172,4 +176,3 @@ class HttpServer(BaseHTTPServer.HTTPServer):
     @property
     def player_proxy(self):
         return self._player_proxy
-        

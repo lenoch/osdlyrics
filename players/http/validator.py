@@ -27,7 +27,8 @@ __all__ = (
     'param_enum',
     'param_set',
     'validate_params',
-    )
+)
+
 
 class baseparam(object):
     def __init__(self, optional=False):
@@ -35,6 +36,7 @@ class baseparam(object):
 
     def validate(self, value):
         raise NotImplementedError()
+
 
 class param_int(baseparam):
     def __init__(self, max=None, min=None, optional=False):
@@ -53,19 +55,21 @@ class param_int(baseparam):
         except:
             return False, value
 
+
 class param_str(baseparam):
     def __init__(self, nonempty=False, optional=False):
         baseparam.__init__(self, optional)
         self._nonempty = nonempty
-        
+
     def validate(self, value):
         return True if not self._nonempty else isinstance(value, basestring), value
+
 
 class param_enum(baseparam):
     def __init__(self, valid_values, optional=False):
         baseparam.__init__(self, optional)
         self._valid_values = valid_values
-        
+
     def validate(self, value):
         if not value in self._valid_values:
             return False, ''
@@ -75,16 +79,17 @@ class param_enum(baseparam):
         except:
             return True, value
 
+
 class param_set(baseparam):
     def __init__(self, valid_values, optional=False):
         baseparam.__init__(self, optional)
         self._valid_values = valid_values
-        
+
     def validate(self, value):
         ret = set()
         for k in value.split(','):
             k = k.strip()
-            
+
             if not k in self._valid_values:
                 return False, ret
             try:
@@ -94,6 +99,7 @@ class param_set(baseparam):
                 ret.add(k)
         return True, ret
 
+
 def validate_params(param_def):
     def dec(func):
         def dec_func(handler, params, *args, **kargs):
@@ -102,7 +108,8 @@ def validate_params(param_def):
                 if k in param_def:
                     valid, value = param_def[k].validate(v)
                     if not valid:
-                        raise BadRequestError('query "%s=%s" is invalid' % (k, v))
+                        raise BadRequestError(
+                            'query "%s=%s" is invalid' % (k, v))
                     v = value
                 valid_params[k] = v
             for k, v in param_def.items():

@@ -52,8 +52,10 @@ PLAYER_NAME = 'Mpd'
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 6600
 
+
 class NoConnectionError(Exception):
     pass
+
 
 class CommandCallback:
     def __init__(self, command, callback):
@@ -63,6 +65,7 @@ class CommandCallback:
     def call(self, *args):
         if callable(self.callback):
             self.callback(*args)
+
 
 class Cmds:
     CONFIG = 'config'
@@ -84,6 +87,7 @@ class Cmds:
     SINGLE = 'single'
     STATUS = 'status'
     STOP = 'stop'
+
 
 class MpdProxy(BasePlayerProxy):
     def __init__(self):
@@ -169,8 +173,8 @@ class MpdProxy(BasePlayerProxy):
                 retval = getattr(self._client, 'fetch_' + cmd_item.command)()
                 cmd_item.call(retval)
             except Exception as e:
-               logging.exception(e)
-               self._on_disconnect()
+                logging.exception(e)
+                self._on_disconnect()
             return True
 
         # no pending data, socket might be closed
@@ -259,6 +263,7 @@ class MpdProxy(BasePlayerProxy):
         if self._player:
             ret['player'] = self._player.debug_info()
         return ret
+
 
 class MpdPlayer(BasePlayer):
 

@@ -68,7 +68,8 @@ class ProxyObject(BasePlayerProxy):
         return self.do_list_activatable_players()
 
     def do_list_activatable_players(self):
-        players = self._get_player_from_bus_names(self.connection.list_activatable_names())
+        players = self._get_player_from_bus_names(
+            self.connection.list_activatable_names())
         return players
 
     def do_connect_player(self, player_name):
@@ -120,12 +121,13 @@ class Mpris2Player(BasePlayer):
         BasePlayer.disconnect(self)
 
     def _player_properties_changed(self, iface, changed, invalidated):
-        caps_props = ['CanGoNext', 'CanGoPrevious', 'CanPlay', 'CanPause', 'CanSeek']
-        prop_map = { 'PlaybackStatus': 'status_changed',
-                     'LoopStatus': 'repeat_changed',
-                     'Shuffle': 'shuffle_changed',
-                     'Metadata': 'track_changed',
-                     }
+        caps_props = ['CanGoNext', 'CanGoPrevious',
+                      'CanPlay', 'CanPause', 'CanSeek']
+        prop_map = {'PlaybackStatus': 'status_changed',
+                    'LoopStatus': 'repeat_changed',
+                    'Shuffle': 'shuffle_changed',
+                    'Metadata': 'track_changed',
+                    }
         # status_props = ['PlaybackStatus', 'LoopStatus', 'Shuffle']
         logging.debug('Status changed: %s' % changed)
         for caps in caps_props:
@@ -210,12 +212,12 @@ class Mpris2Player(BasePlayer):
 
     def get_caps(self):
         caps = set()
-        caps_dict = { 'CanGoNext': CAPS_NEXT,
-                      'CanGoPrevious': CAPS_PREV,
-                      'CanPlay': CAPS_PLAY,
-                      'CanPause': CAPS_PAUSE,
-                      'CanSeek': CAPS_SEEK,
-            }
+        caps_dict = {'CanGoNext': CAPS_NEXT,
+                     'CanGoPrevious': CAPS_PREV,
+                     'CanPlay': CAPS_PLAY,
+                     'CanPause': CAPS_PAUSE,
+                     'CanSeek': CAPS_SEEK,
+                     }
         for k, v in caps_dict.items():
             if self._player_prop.Get(MPRIS2_PLAYER_INTERFACE, k):
                 caps.add(v)

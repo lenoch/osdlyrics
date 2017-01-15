@@ -46,7 +46,7 @@ MPRIS1_CAPS_MAP = {
     1 << 2: CAPS_PAUSE,
     1 << 3: CAPS_PLAY,
     1 << 4: CAPS_SEEK,
-    }
+}
 
 # The constants actually have the same values but that is the legacy of MPRIS1.
 MPRIS1_STATUS_MAP = {
@@ -80,7 +80,8 @@ class ProxyObject(BasePlayerProxy):
         return self.do_list_activatable_players()
 
     def do_list_activatable_players(self):
-        players = self._get_player_from_bus_names(self.connection.list_activatable_names())
+        players = self._get_player_from_bus_names(
+            self.connection.list_activatable_names())
         return players
 
     def do_connect_player(self, player_name):
@@ -110,7 +111,8 @@ class Mpris1Player(BasePlayer):
             self._name_watch = self.connection.watch_name_owner(mpris1_service_name,
                                                                 self._name_lost)
         except Exception as e:
-            logging.error('Fail to connect to mpris1 player %s: %s', player_name, e)
+            logging.error(
+                'Fail to connect to mpris1 player %s: %s', player_name, e)
             self.disconnect()
 
     def _name_lost(self, name):
